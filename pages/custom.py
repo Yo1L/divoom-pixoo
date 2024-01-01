@@ -34,12 +34,24 @@ class PageCustom:  # noqa: D101
             for text in page_data["texts"]:
                 self.__draw_text(draw, text)
 
-        # self.__pixoo.send_image(img)
+        if "glitch" in page_data:
+            self.__pixoo.send_images(self.__glitch_images(img, page_data["glitch"]))
+        else:
+            self.__pixoo.send_image(img)
+
+    def __glitch_images(self, img: Image, conf):
         frames = 10
-        glitch_img = ImageGlitcher().glitch_image(
-            img, 2, color_offset=True, gif=True, frames=frames
+        amount = 1
+
+        if "frames" in conf:
+            frames = conf["frames"]
+
+        if "amount" in conf:
+            amount = conf["amount"]
+
+        return ImageGlitcher().glitch_image(
+            img, amount, color_offset=True, gif=True, frames=frames
         )
-        self.__pixoo.send_images(glitch_img)
 
     def __draw_text(self, draw: ImageDraw, custom):  # noqa: D103
         try:
@@ -51,5 +63,4 @@ class PageCustom:  # noqa: D101
             text = "Template Error"
             return
 
-        print(text)
         draw.text(text=text, xy=tuple(custom["position"]), fill=font_color)
