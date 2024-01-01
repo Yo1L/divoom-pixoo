@@ -22,7 +22,6 @@ class PageCustom:  # noqa: D101
         self.__hass = hass
 
     def render(self, page_data):  # noqa: D103
-        print(page_data)
         if "background" in page_data:
             img = Image.open(page_data["background"])
         else:
@@ -34,8 +33,21 @@ class PageCustom:  # noqa: D101
             for text in page_data["texts"]:
                 self.__draw_text(draw, text)
 
+        if "lines" in page_data:
+            for line in page_data["lines"]:
+                draw.line(
+                    xy=(tuple(line["from"]), tuple(line["to"])),
+                    fill=line["color"],
+                )
+
         if "glitch" in page_data:
-            self.__pixoo.send_images(self.__glitch_images(img, page_data["glitch"]))
+            speed = 60
+            if "speed" in page_data["glitch"]:
+                speed = page_data["glitch"]["speed"]
+
+            self.__pixoo.send_images(
+                self.__glitch_images(img, page_data["glitch"]), speed=speed
+            )
         else:
             self.__pixoo.send_image(img)
 
@@ -56,11 +68,11 @@ class PageCustom:  # noqa: D101
     def __draw_text(self, draw: ImageDraw, custom):  # noqa: D103
         try:
             text = str(Template(custom["text"], self.__hass).async_render())
-            font_color = Template(custom["font_color"], self.__hass).async_render()
+            color = Template(custom["color"], self.__hass).async_render()
 
         except TemplateError as e:
             _LOGGER.error("Template render error: %s", e)
             text = "Template Error"
             return
 
-        draw.text(text=text, xy=tuple(custom["position"]), fill=font_color)
+        draw.text(text=text, xy=tuple(custom["position"]), fill=color)

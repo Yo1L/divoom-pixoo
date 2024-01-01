@@ -42,7 +42,7 @@ class Pixoo:  # noqa: D101
         if self.auto_pic_id_reset and self.__pic_id > self.__refresh_pic_id_limit:
             self.reset_pic_id()
 
-    def send_images(self, images: [Image]) -> None:
+    def send_images(self, images: [Image], speed=60) -> None:
         self.__increment_pic_id()
 
         offset = 0
@@ -56,7 +56,7 @@ class Pixoo:  # noqa: D101
                     "PicWidth": 64,
                     "PicOffset": offset,
                     "PicID": self.__pic_id,
-                    "PicSpeed": 60,
+                    "PicSpeed": speed,
                     "PicData": str(
                         base64.b64encode(
                             bytearray(frame.tobytes("raw", "RGB"))
