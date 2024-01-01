@@ -12,3 +12,19 @@ TEXT_SCHEMA = vol.Schema(
         vol.Required("font_color"): cv.template,
     }
 )
+
+IMAGE_SCHEMA = vol.Schema(
+    {
+        vol.Required("image"): cv.string,
+        vol.Required("position"): vol.All(
+            cv.ensure_list, [cv.positive_int], vol.Length(min=2, max=2)
+        ),
+    }
+)
+
+CUSTOM_SCHEMA = vol.Schema(
+    {
+        vol.Optional("background"): cv.string,
+        vol.Optional("texts"): vol.All(cv.ensure_list, [TEXT_SCHEMA]),
+    }
+)

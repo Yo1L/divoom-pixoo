@@ -12,8 +12,8 @@ from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.template import Template, TemplateError
 
 from . import DOMAIN
-from .pixoo64._font import FONT_GICKO, FONT_PICO_8
-from .pixoo64._pixoo import Pixoo
+from .pages.custom import PageCustom
+from .pixoo import Pixoo
 from .schemas.page_schema import PAGE_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)
@@ -57,7 +57,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     _LOGGER.debug("Scan interval config: %s", scan_interval_config)
     _LOGGER.debug("Scan interval: %s", scan_interval)
 
-    entity = Pixoo64(ip_address, pages, scan_interval)
+    entity = PixooEntity(ip_address, pages, scan_interval)
     async_add_entities([entity], True)
 
     platform = entity_platform.current_platform.get()
@@ -75,7 +75,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     )
 
 
-class Pixoo64(Entity):
+class PixooEntity(Entity):
     def __init__(self, ip_address, pages, scan_interval):  # noqa: D107
         self._ip_address = ip_address
         self._pages = pages
@@ -133,8 +133,6 @@ class Pixoo64(Entity):
 
         def update():
             pixoo = Pixoo(self._ip_address)
-            pixoo.clear()
-            needs_pushing = False
 
             if "channel" in current_page_data:
                 for ch in current_page_data["channel"]:
@@ -144,43 +142,12 @@ class Pixoo64(Entity):
                 for clock in current_page_data["clockId"]:
                     pixoo.set_clock(clock["number"])
 
-            if "images" in current_page_data:
-                for image in current_page_data["images"]:
-                    pixoo.draw_image(image["image"], tuple(image["position"]))
-                needs_pushing = True
-
-            if "texts" in current_page_data:
-                for text in current_page_data["texts"]:
-                    self._pixoo_draw_text(pixoo, text)
-                needs_pushing = True
-
-            if needs_pushing:
-                pixoo.push()
+            if "custom" in current_page_data:
+                page_custom = PageCustom(pixoo, self.hass)
+                page_custom.render(current_page_data["custom"])
 
         await self.hass.async_add_executor_job(update)
         self._current_page_index = (self._current_page_index + 1) % len(self._pages)
-
-    def _pixoo_draw_text(self, pixoo, data):  # noqa: D103
-        try:
-            text = str(Template(data["text"], self.hass).async_render())
-            font_color = Template(data["font_color"], self.hass).async_render()
-
-        except TemplateError as e:
-            _LOGGER.error("Template render error: %s", e)
-            text = "Template Error"
-            return
-
-        font = FONT_PICO_8
-        if "font" in data and data["font"] == "small":
-            text = text.upper()
-            font = FONT_GICKO
-
-        pixoo.draw_text(
-            text,
-            tuple(data["position"]),
-            font_color,
-            font,
-        )
 
     async def async_show_message(
         self, messages, positions, colors, fonts, images=None, image_positions=None
@@ -197,25 +164,11 @@ class Pixoo64(Entity):
 
         def draw():
             pixoo = Pixoo(self._ip_address)
-            pixoo.clear()
-
-            for img, img_pos in zip(images, image_positions):
-                pixoo.draw_image(img, tuple(img_pos))
 
             for message, position, color, font in zip(
                 messages, positions, colors, fonts
             ):
-                selected_font = FONT_PICO_8 if font == "FONT_PICO_8" else FONT_GICKO
-                if font == "FONT_PICO_8":
-                    pixoo.draw_text(
-                        message, tuple(position), tuple(color), selected_font
-                    )
-                else:
-                    pixoo.draw_text(
-                        message.upper(), tuple(position), tuple(color), selected_font
-                    )
-
-            pixoo.push()
+                pixoo.send_text(message, tuple(position))
 
         await self.hass.async_add_executor_job(draw)
         await asyncio.sleep(self._scan_interval.total_seconds())

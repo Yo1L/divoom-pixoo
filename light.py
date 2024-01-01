@@ -11,7 +11,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import DOMAIN, VERSION
-from .pixoo64._pixoo import Pixoo
+from .pixoo import Pixoo
 
 _LOGGER = logging.getLogger(__name__)
 
