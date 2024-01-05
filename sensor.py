@@ -2,6 +2,7 @@ import asyncio  # noqa: D100
 from datetime import timedelta
 import logging
 
+from pixoo1664 import Pixoo
 import voluptuous as vol
 
 from homeassistant.components.sensor import PLATFORM_SCHEMA
@@ -13,7 +14,6 @@ from homeassistant.helpers.template import Template, TemplateError
 
 from . import DOMAIN
 from .pages.custom import PageCustom
-from .pixoo import Pixoo
 from .schemas.page_schema import PAGE_SCHEMA
 
 _LOGGER = logging.getLogger(__name__)

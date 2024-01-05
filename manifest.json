@@ -6,6 +6,6 @@
   "documentation": "https://github.com/Yo1L/pixoo-homeassistant/blob/main/README.md",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Yo1L/pixoo-homeassistant/issues",
-  "requirements": ["glitch-this ~= 1.0.0"],
+  "requirements": ["glitch-this ~= 1.0.0", "pixoo1664 ~= 1.0.1"],
   "version": "1.2.0"
 }

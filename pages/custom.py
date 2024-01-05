@@ -3,12 +3,11 @@ import logging
 
 from glitch_this import ImageGlitcher
 from PIL import Image, ImageDraw
+from pixoo1664 import Pixoo
 
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import TemplateError
 from homeassistant.helpers.template import Template
-
-from ..pixoo import Pixoo
 
 _LOGGER = logging.getLogger(__name__)
 

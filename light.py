@@ -1,5 +1,6 @@
 import logging  # noqa: D100
 
+from pixoo1664 import Pixoo
 import voluptuous as vol
 
 from homeassistant.components.light import PLATFORM_SCHEMA, LightEntity
@@ -11,7 +12,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from . import DOMAIN, VERSION
-from .pixoo import Pixoo
 
 _LOGGER = logging.getLogger(__name__)
 
